@@ -216,3 +216,4 @@ Thumbs.db
 .azure
 static
 .fake
+appsettings.Development.json
