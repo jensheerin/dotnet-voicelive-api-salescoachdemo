@@ -228,46 +228,6 @@ docker run -p 5000:5000 \
   voicelive-api:latest
 ```
 
-## Troubleshooting
-
-### WebSocket Connection Fails
-
-- Verify backend is running on port 5000
-- Check `appsettings.Development.json` has correct Azure credentials
-- Ensure CORS settings in `Program.cs` include `http://localhost:5173`
-- Check browser console for `[WebSocket]` logs to see connection attempts
-- Verify Vite proxy is forwarding `/ws` requests to backend
-
-### Voice Not Working
-
-- Confirm Azure Voice Live API access is enabled for your resource
-- Check browser console for WebSocket errors
-- Verify agent is created successfully before connecting
-- Ensure agent_id is not `undefined` in console logs (should be `local-agent-*`)
-- Check microphone permissions are granted in browser
-
-### Agent Creation Issues
-
-- If you see `agent_id: undefined` in console, verify the backend response format
-- The API must return `agent_id` in snake_case format, not `Id` or `AgentId`
-- Test agent creation: `curl -X POST http://localhost:5000/api/agents/create -H "Content-Type: application/json" -d '{"scenario_id":"scenario3-role-play"}'`
-- Expected response should include `"agent_id": "local-agent-..."` field
-
-### Recording Button Not Responding
-
-- Check browser console for `[App] Toggle recording called` log
-- Verify `[App] Connected: true` when clicking Start Recording
-- Ensure WebSocket connection is established before recording
-- Check if microphone permission prompt appears and grant access
-- Look for `[Recorder]` logs indicating audio capture status
-
-### Azure Authentication Errors
-
-- Verify API keys in `appsettings.Development.json`
-- Check Azure resource endpoints are correct
-- Ensure Speech Services region matches configuration
-- Test Speech API: `curl http://localhost:5000/api/test/speech`
-
 ## Development Tools
 
 ### Recommended VS Code Extensions
