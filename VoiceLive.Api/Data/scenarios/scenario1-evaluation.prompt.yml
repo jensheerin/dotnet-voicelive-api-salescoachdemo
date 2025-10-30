@@ -3,7 +3,7 @@ description: Evaluate sales conversation quality for new vape product portfolio 
 model: gpt-4o
 modelParameters:
   temperature: 0.3
-  max_tokens: 1500
+  maxTokens: 1500
 messages:
   - role: system
     content: |
@@ -39,10 +39,5 @@ evaluators:
     description: Addresses all evaluation criteria systematically for vape industry
   - name: Specific actionable feedback
     description: Provides concrete suggestions for improvement in vape market context
-  - name: Balanced scoring approach
-    description: Fair assessment of both strengths and areas for development
-    description: Addresses all evaluation criteria systematically
-  - name: Specific actionable feedback
-    description: Provides concrete suggestions for improvement
   - name: Balanced scoring approach
     description: Fair assessment of both strengths and areas for development

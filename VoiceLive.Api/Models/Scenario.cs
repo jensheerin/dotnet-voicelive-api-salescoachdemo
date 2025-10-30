@@ -12,6 +12,10 @@ public class Scenario
     public ModelParameters ModelParameters { get; set; } = new();
 
     public List<Message> Messages { get; set; } = new();
+    
+    // Optional properties for testing and evaluation
+    public List<TestData>? TestData { get; set; }
+    public List<Evaluator>? Evaluators { get; set; }
 }
 
 public class ModelParameters
@@ -27,4 +31,18 @@ public class Message
 {
     public string Role { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
+}
+
+public class TestData
+{
+    [YamlMember(Alias = "conversation_transcript", ApplyNamingConventions = false)]
+    public string ConversationTranscript { get; set; } = string.Empty;
+    
+    public string Expected { get; set; } = string.Empty;
+}
+
+public class Evaluator
+{
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }

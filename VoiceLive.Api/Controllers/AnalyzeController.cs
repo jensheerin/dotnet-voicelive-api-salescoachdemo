@@ -22,20 +22,25 @@ public class AnalyzeController : ControllerBase
     }
 
     [HttpPost]
-    [HttpPost("conversation")]
     public async Task<IActionResult> AnalyzeConversation([FromBody] AnalyzeConversationRequest request)
     {
         try
         {
+            _logger.LogInformation("Received analyze conversation request for scenario: {ScenarioId}", request.ScenarioId);
+            
             if (string.IsNullOrEmpty(request.ScenarioId) || string.IsNullOrEmpty(request.Transcript))
             {
+                _logger.LogWarning("Invalid request: ScenarioId or Transcript is missing");
                 return BadRequest(new { error = "Scenario ID and transcript are required" });
             }
+
+            _logger.LogInformation("Analyzing conversation with transcript length: {Length}", request.Transcript.Length);
 
             var result = await _conversationAnalyzer.AnalyzeConversationAsync(
                 request.ScenarioId,
                 request.Transcript);
 
+            _logger.LogInformation("Analysis completed successfully");
             return Ok(result);
         }
         catch (Exception ex)
@@ -81,27 +86,17 @@ public class AnalyzeController : ControllerBase
 
 public class AnalyzeConversationRequest
 {
+    [System.Text.Json.Serialization.JsonPropertyName("scenario_id")]
     public string ScenarioId { get; set; } = string.Empty;
+    
+    [System.Text.Json.Serialization.JsonPropertyName("transcript")]
     public string Transcript { get; set; } = string.Empty;
-    public List<byte[]>? AudioData { get; set; }
+    
+    [System.Text.Json.Serialization.JsonPropertyName("audio_data")]
+    public List<object>? AudioData { get; set; }
+    
+    [System.Text.Json.Serialization.JsonPropertyName("reference_text")]
     public string? ReferenceText { get; set; }
-
-    // Support snake_case from frontend
-    public string? scenario_id
-    {
-        get => ScenarioId;
-        set => ScenarioId = value ?? string.Empty;
-    }
-    public List<byte[]>? audio_data
-    {
-        get => AudioData;
-        set => AudioData = value;
-    }
-    public string? reference_text
-    {
-        get => ReferenceText;
-        set => ReferenceText = value;
-    }
 }
 
 public class AssessPronunciationRequest

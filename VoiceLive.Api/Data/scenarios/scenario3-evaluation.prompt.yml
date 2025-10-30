@@ -3,7 +3,7 @@ description: Evaluate automation introduction conversation for traditional manuf
 model: gpt-4o
 modelParameters:
   temperature: 0.3
-  max_tokens: 1500
+  maxTokens: 1500
 messages:
   - role: system
     content: |

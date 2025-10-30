@@ -162,19 +162,40 @@ export default function App() {
   }
 
   const handleAnalyze = async () => {
-    if (!selectedScenario) return
+    console.log('[App] handleAnalyze called')
+    console.log('[App] selectedScenario:', selectedScenario)
+    
+    if (!selectedScenario) {
+      console.warn('[App] No scenario selected, aborting analysis')
+      alert('No scenario selected')
+      return
+    }
 
     const recordings = getRecordings()
     const audioData = getAudioRecording()
 
-    if (!recordings.conversation.length) return
+    console.log('[App] Recordings:', {
+      conversationLength: recordings.conversation.length,
+      audioLength: recordings.audio.length,
+      audioDataLength: audioData.length
+    })
 
+    if (!recordings.conversation.length) {
+      console.warn('[App] No conversation recordings found, aborting analysis')
+      alert('No conversation to analyze. Please have a conversation first.')
+      return
+    }
+
+    console.log('[App] Starting analysis...')
     setShowLoading(true)
 
     try {
       const transcript = recordings.conversation
         .map((m: any) => `${m.role}: ${m.content}`)
         .join('\n')
+
+      console.log('[App] Transcript:', transcript)
+      console.log('[App] Calling API analyzeConversation...')
 
       const result = await api.analyzeConversation(
         selectedScenario,
@@ -183,10 +204,14 @@ export default function App() {
         recordings.conversation
       )
 
+      console.log('[App] Analysis result:', result)
       setAssessment(result)
       setShowAssessment(true)
     } catch (error) {
-      console.error('Analysis failed:', error)
+      console.error('[App] Analysis failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.error('[App] Error details:', errorMessage)
+      alert(`Analysis failed:\n\n${errorMessage}\n\nCheck browser console for details.`)
     } finally {
       setShowLoading(false)
     }

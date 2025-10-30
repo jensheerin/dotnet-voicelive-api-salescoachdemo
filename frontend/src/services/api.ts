@@ -42,18 +42,68 @@ export const api = {
   ): Promise<Assessment> {
     const referenceText = extractUserText(conversationMessages)
 
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        scenario_id: scenarioId,
-        transcript,
-        audio_data: audioData,
-        reference_text: referenceText,
-      }),
+    const payload = {
+      scenario_id: scenarioId,
+      transcript,
+      audio_data: audioData,
+      reference_text: referenceText,
+    }
+
+    console.log('[API] analyzeConversation called at:', new Date().toISOString())
+    console.log('[API] analyzeConversation payload:', {
+      scenario_id: scenarioId,
+      transcriptLength: transcript.length,
+      audioDataLength: audioData.length,
+      reference_text: referenceText.substring(0, 50) + '...',
     })
-    if (!res.ok) throw new Error('Analysis failed')
-    return res.json()
+
+    try {
+      // Create AbortController for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => {
+        console.warn('[API] Request taking longer than 45 seconds...')
+      }, 45000)
+
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+      console.log('[API] Response received at:', new Date().toISOString())
+      console.log('[API] Response status:', res.status, res.statusText)
+
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('[API] Error response:', errorText)
+        throw new Error(`Analysis failed: ${res.status} ${res.statusText}`)
+      }
+
+      const result = await res.json()
+      console.log('[API] Analysis result received successfully')
+      return result
+    } catch (error) {
+      console.error('[API] Fetch error:', error)
+
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(
+          'Cannot connect to backend. Please ensure:\n' +
+            '1. Backend is running on port 5000 (cd VoiceLive.Api && dotnet run)\n' +
+            '2. Frontend dev server is running (npm run dev)\n' +
+            '3. Check terminal for any errors'
+        )
+      }
+
+      // Check if it's an abort error
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - analysis taking too long')
+      }
+
+      throw error
+    }
   },
 
   async generateGraphScenario(): Promise<Scenario> {
